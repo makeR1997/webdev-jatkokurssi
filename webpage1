@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Single Page Website</title>
+    <style>
+        /* CSS */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1em 0;
+            text-align: center;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #333;
+        }
+        nav a {
+            color: white;
+            padding: 1em;
+            text-decoration: none;
+            text-align: center;
+        }
+        nav a:hover {
+            background-color: #575757;
+        }
+        section {
+            padding: 2em;
+            min-height: 100vh;
+        }
+        .hero {
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .about {
+            background-color: #e2e2e2;
+        }
+        .contact {
+            background-color: #d1d1d1;
+        }
+        footer {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 1em 0;
+        }
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+            }
+            nav a {
+                padding: 0.5em;
+            }
+        }
+    </style>
+    <script>
+        // JavaScript
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    window.scrollTo({
+                        top: targetSection.offsetTop,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Tervetuloa Single Page Website -sivustolle</h1>
+    </header>
+    <nav>
+        <a href="#hero">Etusivu</a>
+        <a href="#about">Tietoja</a>
+        <a href="#contact">Yhteystiedot</a>
+    </nav>
+    <section id="hero" class="hero">
+        <h2>Etusivu</h2>
+        <p>Tervetuloa meidän verkkosivustolle. Tämä on yksinkertainen Single Page Website -esimerkki.</p>
+    </section>
+    <section id="about" class="about">
+        <h2>Tietoja</h2>
+        <p>Tämä osio sisältää tietoa yrityksestä tai henkilöstä.</p>
+    </section>
+    <section id="contact" class="contact">
+        <h2>Yhteystiedot</h2>
+        <p>Ota meihin yhteyttä lähettämällä sähköpostia osoitteeseen info@esimerkki.fi.</p>
+    </section>
+    <footer>
+        <p>&copy; 2025 Single Page Website. Kaikki oikeudet pidätetään.</p>
+    </footer>
+</body>
+</html>
