@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test SQLite API</title>
+    <script>
+        async function addItem() {
+            const name = document.getElementById("name").value;
+            const quantity = document.getElementById("quantity").value;
+            const response = await fetch("/items", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, quantity: parseInt(quantity) })
+            });
+            const result = await response.json();
+            alert("Item added: " + JSON.stringify(result));
+            loadItems();
+        }
+
+        async function loadItems() {
+            const response = await fetch("/items");
+            const items = await response.json();
+            let list = "";
+            items.forEach(item => {
+                list += `<li>${item.id}: ${item.name} (${item.quantity}) 
+                <button onclick="deleteItem(${item.id})">Delete</button></li>`;
+            });
+            document.getElementById("items").innerHTML = list;
+        }
+
+        async function deleteItem(id) {
+            await fetch(`/items/${id}`, { method: "DELETE" });
+            alert("Item deleted");
+            loadItems();
+        }
+
+        window.onload = loadItems;
+    </script>
+</head>
+<body>
+    <h1>SQLite Database Test</h1>
+    <h2>Add Item</h2>
+    <input type="text" id="name" placeholder="Name">
+    <input type="number" id="quantity" placeholder="Quantity">
+    <button onclick="addItem()">Add</button>
+
+    <h2>Items in Database</h2>
+    <ul id="items"></ul>
+</body>
+</html>

@@ -1,6 +1,7 @@
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 const PORT = 3000;
@@ -8,6 +9,7 @@ const PORT = 3000;
 // Middleware
 app.use(express.json());
 app.use(cors());
+app.use(express.static(path.join(__dirname, "public"))); // Serve static files
 
 // Initialize database
 const db = new sqlite3.Database("./database.db", (err) => {
@@ -32,59 +34,55 @@ const db = new sqlite3.Database("./database.db", (err) => {
     }
 });
 
-// CRUD Routes
+// Route to get all items
+app.get("/items", (req, res) => {
+    db.all("SELECT * FROM items", [], (err, rows) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(rows);
+    });
+});
 
-// Create
+// Route to add a new item
 app.post("/items", (req, res) => {
+    console.log("Received POST request:", req.body); // Debugging log
+
     const { name, quantity } = req.body;
+    if (!name || quantity == null) {
+        console.error("Invalid input:", req.body);
+        return res.status(400).json({ error: "Name and quantity are required" });
+    }
+
     db.run(
         "INSERT INTO items (name, quantity) VALUES (?, ?)",
         [name, quantity],
         function (err) {
-            if (err) return res.status(400).json({ error: err.message });
+            if (err) {
+                console.error("Database error:", err);
+                return res.status(500).json({ error: err.message });
+            }
+            console.log("Item added:", { id: this.lastID, name, quantity });
             res.json({ id: this.lastID, name, quantity });
         }
     );
 });
 
-// Read (all)
-app.get("/items", (req, res) => {
-    db.all("SELECT * FROM items", [], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-// Read (single)
-app.get("/items/:id", (req, res) => {
-    db.get("SELECT * FROM items WHERE id = ?", [req.params.id], (err, row) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(row || {});
-    });
-});
-
-// Update
-app.put("/items/:id", (req, res) => {
-    const { name, quantity } = req.body;
-    db.run(
-        "UPDATE items SET name = ?, quantity = ? WHERE id = ?",
-        [name, quantity, req.params.id],
-        function (err) {
-            if (err) return res.status(400).json({ error: err.message });
-            res.json({ message: "Item updated", changes: this.changes });
-        }
-    );
-});
-
-// Delete
+// Route to delete an item
 app.delete("/items/:id", (req, res) => {
-    db.run("DELETE FROM items WHERE id = ?", [req.params.id], function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Item deleted", changes: this.changes });
+    const { id } = req.params;
+    db.run("DELETE FROM items WHERE id = ?", [id], function (err) {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).json({ error: err.message });
+        }
+        console.log("Item deleted:", id);
+        res.json({ deleted: id });
     });
 });
 
-// Start Server
+// Start the server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
